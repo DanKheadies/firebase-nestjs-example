@@ -6,30 +6,17 @@ import {
   Patch,
   Param,
   Delete,
-  ValidationPipe,
-  UsePipes,
+  UseGuards,
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
-import { LoginDto } from '../auth/dto/login.dto';
-import { RegisterUserDto } from '../auth/dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Post('login')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  login(@Body() loginDto: LoginDto) {
-    return this.userService.loginUser(loginDto);
-  }
-
-  @Post('register')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  registerUser(@Body() registerUserDto: RegisterUserDto) {
-    return this.userService.registerUser(registerUserDto);
-  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -37,6 +24,8 @@ export class UserController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   findAll() {
     return this.userService.findAll();
   }
